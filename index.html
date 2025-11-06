@@ -1,10 +1,3 @@
-
-<!--
-  Skylark — AI Emergency Drones
-  Single-file website (HTML + CSS + JS)
-  Save as index.html and deploy (GitHub Pages compatible).
--->
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -19,108 +12,157 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    :root{ --bg:#0b0b0b; --card:#0f1720; --muted:#9aa4b2; --accent:#00d1ff; --glass: rgba(255,255,255,0.04); --radius:16px }
+    :root{
+      --bg:#05060a;
+      --card:#071524;
+      --muted:#9aa4b2;
+      --accent:#00d1ff; /* blue */
+      --accent-2:#ffd54a; /* yellow */
+      --accent-3:#6bf5ff;
+      --glass: rgba(255,255,255,0.03);
+      --radius:16px;
+      --accent-bg: linear-gradient(90deg, rgba(0,209,255,0.06), rgba(107,245,255,0.02));
+      --cta:#00bcd4;
+    }
     *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#050505,#0b0b0b);color:#e6eef6;font-family:Inter, Poppins, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#030309,var(--bg));color:#e6eef6;font-family:Inter, Poppins, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;line-height:1.35}
     .wrap{width:100%;max-width:1200px;margin:0 auto;padding:28px}
-    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .logo .mark{font-weight:800;color:transparent;background:linear-gradient(90deg,var(--accent),#6bf5ff);-webkit-background-clip:text;background-clip:text;font-size:20px}
-    .tag{font-size:12px;color:var(--muted)}
-    nav.top-nav{display:flex;gap:10px;flex-wrap:wrap}
-    nav.top-nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px}
-    nav.top-nav a.active{background:linear-gradient(90deg,rgba(0,209,255,0.08),rgba(107,245,255,0.03));color:#e6faff}
 
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;margin-top:20px}
-    h1{margin:0;font-size:32px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .logo{display:flex;flex-direction:column}
+    .mark{font-weight:900;color:transparent;background:linear-gradient(90deg,var(--accent),var(--accent-3));-webkit-background-clip:text;background-clip:text;font-size:22px;letter-spacing:1px}
+    .tag{font-size:12px;color:var(--muted);margin-top:2px}
+
+    nav.top-nav{display:flex;gap:10px;flex-wrap:wrap}
+    nav.top-nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:10px}
+    nav.top-nav a.active{background:var(--accent-bg);color:#e6faff}
+
+    /* Cards and layout */
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;margin-top:20px;box-shadow:0 6px 18px rgba(2,6,12,0.6);border:1px solid rgba(255,255,255,0.02)}
+    h1{margin:0;font-size:34px}
     h2{margin:0 0 8px;font-size:18px}
     p.small{margin:0;color:var(--muted)}
 
+    /* Section header with colored line */
+    .section-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .section-line{width:54px;height:6px;border-radius:6px;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.45)}
+    .section-accent-blue .section-line{background:linear-gradient(90deg,var(--accent),var(--accent-3))}
+    .section-accent-yellow .section-line{background:linear-gradient(90deg,var(--accent-2),rgba(255,214,74,0.7))}
+    .section-header h2{margin:0}
+
+    /* Feature grid */
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    .feature{padding:12px;border-radius:8px;background:rgba(255,255,255,0.01)}
+    .feature{position:relative;padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.008), rgba(255,255,255,0.006));overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+    .feature:before{content:'';position:absolute;left:-40px;top:-40px;width:120px;height:120px;background:radial-gradient(circle at 20% 20%, rgba(0,209,255,0.06), transparent 40%);transform:rotate(15deg);opacity:0.9}
+    .feature strong{display:block;margin-bottom:6px}
+
+    /* Highlighted feature variations */
+    .feature.accent{background:linear-gradient(180deg, rgba(0,209,255,0.02), rgba(6,30,40,0.08));border-left:6px solid var(--accent)}
+    .feature.warn{background:linear-gradient(180deg, rgba(255,184,108,0.02), rgba(40,20,10,0.03));border-left:6px solid #ffb86b}
 
     /* IO styles */
     .io-row{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));}
-    .io-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent),#6bf5ff);color:#031018;font-weight:800}
+    .io-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent),var(--accent-3));color:#031018;font-weight:800}
     .io-output{text-align:right;min-width:200px}
     .output-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-weight:700;background:linear-gradient(90deg,#0ff1d6,#00a6ff);color:#02121a}
 
     /* Metrics */
     .stats-row{display:flex;gap:12px}
     .stat-card{flex:1;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));text-align:center}
-    .stat-number{font-size:28px;font-weight:800;color:var(--accent)}
+    .stat-number{font-size:28px;font-weight:900;color:var(--accent)}
 
     /* Map */
     #coverageMap{width:100%;height:360px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
 
-    /* Timeline */
-    .timeline{display:flex;gap:12px;flex-wrap:wrap}
-    .step{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));min-width:140px;text-align:center}
+    /* Pricing cards */
+    .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .price-card{position:relative;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));border:1px solid rgba(255,255,255,0.02)}
+    .price-card.best{box-shadow:0 10px 30px rgba(0,209,255,0.08);transform:translateY(-6px);border-left:6px solid var(--accent)}
+    .price-tag{font-size:20px;font-weight:800;margin-top:8px}
 
-    /* Misc */
+    /* Awards badges */
+    .award-badge{padding:8px 12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));border:1px solid rgba(255,255,255,0.02);font-weight:700}
+    .award-badge.primary{background:linear-gradient(90deg,var(--accent),var(--accent-3));color:#02121a}
+
+    /* Timeline modern */
+    .timeline{display:flex;gap:12px;align-items:center}
+    .timeline-line{height:4px;background:linear-gradient(90deg,var(--accent),var(--accent-3));flex:1;border-radius:4px}
+    .timeline-step{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:8px;min-width:110px;text-align:center;position:relative}
+    .timeline-dot{width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 6px 18px rgba(0,0,0,0.5);margin:0 12px}
+
+    /* Buttons */
     .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
-    .btn-primary{background:var(--accent);color:#02121a}
+    .btn-primary{background:var(--cta);color:#02121a;font-weight:700}
     .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
 
     footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;color:var(--muted)}
 
-    @media(max-width:900px){.grid-3{grid-template-columns:1fr}.stats-row{flex-direction:column}}
+    /* Hero banner accent */
+    #hero{position:relative;overflow:hidden}
+    #hero .eyebrow{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(0,209,255,0.08);color:var(--accent);font-weight:700;margin-bottom:10px}
+
+    /* Testimonials */
+    #testimonialWrap .testimonial-slide{transition:transform 450ms cubic-bezier(.2,.9,.2,1);}    
+    #testimonialWrap .testimonial{padding:12px}
+
+    /* Small screens */
+    @media(max-width:900px){.grid-3{grid-template-columns:1fr}.stats-row{flex-direction:column}.timeline{flex-direction:column;align-items:flex-start}.timeline-line{display:none}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="logo">
+      <div class="logo" aria-hidden="false">
+        <!-- cleaned up logo: no stray symbols -->
         <div class="mark">SKYLARK</div>
         <div class="tag">AI Emergency Response Drones</div>
       </div>
-      <nav class="top-nav">
+      <nav class="top-nav" aria-label="Main navigation">
         <a href="#features" class="nav-link">Features</a>
         <a href="#how" class="nav-link">How it Works</a>
         <a href="#io" class="nav-link">Input/Output</a>
         <a href="#metrics" class="nav-link">Metrics</a>
-        <a href="#partners" class="nav-link">Partners</a>
-        <a href="#pricing" class="nav-link">Pricing</a>
-        <a href="#mission-stats" class="nav-link">Stats</a>
-        <a href="#tech" class="nav-link">Tech</a>
         <a href="#coverage" class="nav-link">Coverage</a>
-        <a href="#awards" class="nav-link">Awards</a>
-        <a href="#timeline" class="nav-link">Timeline</a>
         <a href="#testimonials" class="nav-link">Testimonials</a>
         <a href="#contact" class="btn btn-primary">Get a Demo</a>
       </nav>
     </header>
 
     <main>
-      <section id="hero" class="card">
+      <section id="hero" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2 style="color:var(--muted)">Hero</h2></div>
+        <span class="eyebrow">LIVE • Rapid Response</span>
         <h1>Skylark — When Help Needs to Arrive Sooner</h1>
         <p class="small">Autonomous AI drones for first-response: live mapping, victim detection, hazard analysis, and rapid life-saving deliveries — deployed within minutes.</p>
       </section>
 
-      <section id="features" class="card">
-        <h2>Key Features</h2>
+      <section id="features" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Key Features</h2></div>
         <p class="small">Designed for speed, safety, and operational clarity.</p>
-        <div class="grid-3">
-          <div class="feature"><strong>Rapid Autonomous Deployment</strong><div class="small">Launch in seconds and start streaming actionable data.</div></div>
+        <div class="grid-3" style="margin-top:12px">
+          <div class="feature accent"><strong>Rapid Autonomous Deployment</strong><div class="small">Launch in seconds and start streaming actionable data.</div></div>
           <div class="feature"><strong>AI Victim Detection</strong><div class="small">Thermal & visual AI pinpoint victims and prioritize rescue routes.</div></div>
-          <div class="feature"><strong>Payload Delivery</strong><div class="small">Deliver defibrillators, first-aid kits and comms.</div></div>
+          <div class="feature warn"><strong>Payload Delivery</strong><div class="small">Deliver defibrillators, first-aid kits and comms.</div></div>
+
           <div class="feature"><strong>3D Mapping & LiDAR</strong><div class="small">Real-time terrain and structure mapping.</div></div>
-          <div class="feature"><strong>Hazard Sensing</strong><div class="small">Gas, smoke and chemical detection.</div></div>
+          <div class="feature accent"><strong>Hazard Sensing</strong><div class="small">Gas, smoke and chemical detection.</div></div>
           <div class="feature"><strong>Command Integration</strong><div class="small">Seamless dispatch and hospital coordination.</div></div>
         </div>
       </section>
 
-      <section id="how" class="card">
-        <h2>How Skylark Solves the Problem</h2>
+      <section id="how" class="card section-accent-yellow">
+        <div class="section-header section-accent-yellow"><div class="section-line"></div><h2>How Skylark Solves the Problem</h2></div>
         <p class="small">Instant situational awareness, prioritized victim detection, and life-saving payloads.</p>
         <div class="grid-3" style="margin-top:12px">
           <div class="feature"><strong>Instant Assessment</strong><div class="small">Scan & report in under 5 minutes.</div></div>
-          <div class="feature"><strong>Prioritized Response</strong><div class="small">AI ranks severity for responders.</div></div>
+          <div class="feature accent"><strong>Prioritized Response</strong><div class="small">AI ranks severity for responders.</div></div>
           <div class="feature"><strong>Early Aid</strong><div class="small">Deliver defibrillators and survival kits.</div></div>
         </div>
       </section>
 
-      <section id="io" class="card">
-        <h2>Input & Output — Sensors & Actions</h2>
+      <section id="io" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Input & Output — Sensors & Actions</h2></div>
         <div style="margin-top:12px">
           <div class="io-row"><div class="io-icon">📡</div><div style="flex:1"><strong>GPS + IMU</strong><div class="small">Precise geo-tagging</div></div><div class="io-output"><span class="output-badge">LIVE MAP</span><div class="small">Geo-tagged routes</div></div></div>
           <div class="io-row"><div class="io-icon">🌡️</div><div style="flex:1"><strong>Thermal & IR</strong><div class="small">Detect heat signatures</div></div><div class="io-output"><span class="output-badge">VICTIM HEAT</span><div class="small">Pinpoint coords</div></div></div>
@@ -131,8 +173,8 @@
         </div>
       </section>
 
-      <section id="metrics" class="card">
-        <h2>Impact & Metrics</h2>
+      <section id="metrics" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Impact & Metrics</h2></div>
         <p class="small">Visualising response time reduction and estimated lives saved.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
           <div class="card"><h3>Average Response Time (minutes)</h3><div style="height:320px"><canvas id="chartResponse"></canvas></div></div>
@@ -140,34 +182,49 @@
         </div>
       </section>
 
-      <section id="partners" class="card">
-        <h2>Trusted by responders</h2>
+      <section id="partners" class="card section-accent-yellow">
+        <div class="section-header section-accent-yellow"><div class="section-line"></div><h2>Trusted by responders</h2></div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
-          <div style="width:160px;height:64px;border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center">NDRF</div>
-          <div style="width:160px;height:64px;border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center">Bengaluru Fire Dept</div>
-          <div style="width:160px;height:64px;border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center">AI4Good</div>
+          <div style="width:160px;height:64px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,209,255,0.03));display:flex;align-items:center;justify-content:center">NDRF</div>
+          <div style="width:160px;height:64px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(107,245,255,0.02));display:flex;align-items:center;justify-content:center">Bengaluru Fire Dept</div>
+          <div style="width:160px;height:64px;border-radius:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,100,255,0.02));display:flex;align-items:center;justify-content:center">AI4Good</div>
         </div>
       </section>
 
-      <section id="pricing" class="card">
-        <h2>Deployment & Pricing</h2>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
-          <div class="feature"><strong>Starter</strong><div class="small">Local teams — ₹2,50,000</div></div>
-          <div class="feature"><strong>Pro</strong><div class="small">City-scale — ₹10,00,000</div></div>
-          <div class="feature"><strong>Enterprise</strong><div class="small">Nationwide — Custom</div></div>
+      <section id="pricing" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Deployment & Pricing</h2></div>
+        <div class="pricing-grid" style="margin-top:12px">
+          <div class="price-card">
+            <div style="font-weight:800">Starter</div>
+            <div class="price-tag">₹2,50,000</div>
+            <div class="small">Local teams — quick deploy kit</div>
+            <ul class="small" style="margin-top:8px;padding-left:18px"><li>2 drones + base</li><li>1-year support</li><li>Training session</li></ul>
+          </div>
+          <div class="price-card best">
+            <div style="font-weight:800">Pro <span style="font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-left:8px">Most popular</span></div>
+            <div class="price-tag">₹10,00,000</div>
+            <div class="small">City-scale — rapid response fleet</div>
+            <ul class="small" style="margin-top:8px;padding-left:18px"><li>10 drones + ops center</li><li>2-year SLA</li><li>Integration with dispatch</li></ul>
+          </div>
+          <div class="price-card">
+            <div style="font-weight:800">Enterprise</div>
+            <div class="price-tag">Custom</div>
+            <div class="small">Nationwide — tailored</div>
+            <ul class="small" style="margin-top:8px;padding-left:18px"><li>Custom fleet & training</li><li>On-site engineers</li><li>Dedicated support</li></ul>
+          </div>
         </div>
       </section>
 
-      <section id="testimonials" class="card">
-        <h2>What responders say</h2>
+      <section id="testimonials" class="card section-accent-yellow">
+        <div class="section-header section-accent-yellow"><div class="section-line"></div><h2>What responders say</h2></div>
         <div class="card" id="testimonialWrap" style="overflow:hidden;min-height:100px">
           <div class="testimonial-slide"><div class="testimonial"><strong>Dr. Mehta</strong><div class="small">"Skylark drones arrived before our ambulance — saved lives."</div></div></div>
           <div class="testimonial-slide"><div class="testimonial"><strong>NDRF Officer</strong><div class="small">"Accurate victim detection during floods."</div></div></div>
         </div>
       </section>
 
-      <section id="mission-stats" class="card">
-        <h2>Mission Stats Dashboard</h2>
+      <section id="mission-stats" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Mission Stats Dashboard</h2></div>
         <div class="stats-row">
           <div class="stat-card"><div class="stat-number" data-target="10248">10,248</div><div class="small">Total rescues</div></div>
           <div class="stat-card"><div class="stat-number" data-target="62">62</div><div class="small">Cities covered</div></div>
@@ -175,41 +232,44 @@
         </div>
       </section>
 
-      <section id="tech" class="card">
-        <h2>Tech Stack & Innovations</h2>
-        <div class="tech-grid">
+      <section id="tech" class="card section-accent-yellow">
+        <div class="section-header section-accent-yellow"><div class="section-line"></div><h2>Tech Stack & Innovations</h2></div>
+        <div class="tech-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
           <div class="tech-card"><div class="tech-icon">👁️</div><div><strong>AI Vision Module</strong><div class="small">Detects victims under debris.</div></div></div>
           <div class="tech-card"><div class="tech-icon">❄️</div><div><strong>Thermal Fusion</strong><div class="small">98% night accuracy.</div></div></div>
           <div class="tech-card"><div class="tech-icon">🧭</div><div><strong>Autonomous Pathfinding</strong><div class="small">Adaptive routing.</div></div></div>
         </div>
       </section>
 
-      <section id="coverage" class="card">
-        <h2>Global Coverage Map</h2>
+      <section id="coverage" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Global Coverage Map</h2></div>
         <div id="coverageMap"></div>
       </section>
 
-      <section id="awards" class="card">
-        <h2>Awards & Recognition</h2>
+      <section id="awards" class="card section-accent-yellow">
+        <div class="section-header section-accent-yellow"><div class="section-line"></div><h2>Awards & Recognition</h2></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-          <div class="award-badge">🏆 AI4Good Innovation 2025</div>
+          <div class="award-badge primary">🏆 AI4Good Innovation 2025</div>
           <div class="award-badge">🌐 Partnered with ISRO</div>
           <div class="award-badge">🎖️ UN SDG 9 Contributor</div>
         </div>
       </section>
 
-      <section id="timeline" class="card">
-        <h2>Timeline</h2>
-        <div class="timeline">
-          <div class="step"><strong>2023</strong><div class="small">Concept born</div></div>
-          <div class="step"><strong>2024</strong><div class="small">Prototype launched</div></div>
-          <div class="step"><strong>2025</strong><div class="small">First deployment in floods</div></div>
-          <div class="step"><strong>2026</strong><div class="small">Partnered with national agencies</div></div>
+      <section id="timeline" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Timeline</h2></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+          <div class="timeline-step"><strong>2023</strong><div class="small">Concept born</div></div>
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-step"><strong>2024</strong><div class="small">Prototype launched</div></div>
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-step"><strong>2025</strong><div class="small">First deployment in floods</div></div>
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-step"><strong>2026</strong><div class="small">Partnered with national agencies</div></div>
         </div>
       </section>
 
-      <section id="contact" class="card">
-        <h2>Contact & Demo</h2>
+      <section id="contact" class="card section-accent-blue">
+        <div class="section-header section-accent-blue"><div class="section-line"></div><h2>Contact & Demo</h2></div>
         <div style="display:flex;gap:12px;flex-wrap:wrap">
           <div>
             <strong>Skylark — AI Emergency Response</strong>
@@ -238,84 +298,216 @@
 
   </div>
 
-  <button id="backTop" style="position:fixed;right:20px;bottom:20px;width:48px;height:48px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#6bf5ff);border:0;display:none">↑</button>
+  <button id="backTop" style="position:fixed;right:20px;bottom:20px;width:48px;height:48px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-3));border:0;display:none">↑</button>
 
   <script>
-  // Single consolidated script. No stray HTML inside JS.
-  (function(){
+  // Single consolidated script — cleaned and with clearer structure to avoid accidental syntax issues.
+  (function () {
     // Helpers
-    function qs(sel){return document.querySelector(sel)}
-    function qsa(sel){return Array.from(document.querySelectorAll(sel))}
+    function qs(sel) { return document.querySelector(sel); }
+    function qsa(sel) { return Array.from(document.querySelectorAll(sel)); }
 
     // Year
-    const yearEl = qs('#year'); if(yearEl) yearEl.textContent = new Date().getFullYear();
+    var yearEl = qs('#year');
+    if (yearEl) { yearEl.textContent = new Date().getFullYear(); }
 
     // Smooth scroll for nav links
-    qsa('.nav-link').forEach(a=>{
-      a.addEventListener('click', function(e){ e.preventDefault(); const id = this.getAttribute('href'); const el = qs(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); });
+    qsa('.nav-link').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var id = this.getAttribute('href');
+        var el = qs(id);
+        if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
     });
 
-    // Charts
-    function initCharts(){
-      try{
-        const rEl = qs('#chartResponse');
-        if(rEl){ new Chart(rEl.getContext('2d'), { type:'bar', data:{ labels:['Traditional','Skylark'], datasets:[{ label:'Response time (min)', data:[25,5], backgroundColor:['rgba(255,159,64,0.25)','rgba(0,209,255,0.18)'] }] }, options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}} }); }
-        const lEl = qs('#chartLives');
-        if(lEl){ new Chart(lEl.getContext('2d'), { type:'bar', data:{ labels:['Without','With'], datasets:[{ label:'Lives saved/1000', data:[40,68], backgroundColor:['rgba(255,99,132,0.25)','rgba(54,162,235,0.25)'] }] }, options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}} }); }
-      }catch(e){ console.warn('Charts init failed', e); }
+    // Charts - professional look
+    function initCharts() {
+      try {
+        var ctxR = qs('#chartResponse');
+        if (ctxR) {
+          var gR = ctxR.getContext('2d');
+          var grad1 = gR.createLinearGradient(0, 0, 0, 300);
+          grad1.addColorStop(0, 'rgba(255,159,64,0.9)');
+          grad1.addColorStop(1, 'rgba(255,159,64,0.2)');
+          var grad2 = gR.createLinearGradient(0, 0, 0, 300);
+          grad2.addColorStop(0, 'rgba(0,209,255,0.9)');
+          grad2.addColorStop(1, 'rgba(0,209,255,0.12)');
+
+          new Chart(gR, {
+            type: 'bar',
+            data: {
+              labels: ['Traditional', 'Skylark'],
+              datasets: [{ label: 'Response time (min)', data: [25, 1.8], backgroundColor: [grad1, grad2], borderRadius: 12, barThickness: 44 }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + ' min'; }
+                  }
+                }
+              },
+              scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { stepSize: 5 } },
+                x: { grid: { display: false } }
+              }
+            }
+          });
+        }
+
+        var ctxL = qs('#chartLives');
+        if (ctxL) {
+          var gL = ctxL.getContext('2d');
+          var gradA = gL.createLinearGradient(0, 0, 0, 300);
+          gradA.addColorStop(0, 'rgba(54,162,235,0.88)');
+          gradA.addColorStop(1, 'rgba(54,162,235,0.12)');
+          var gradB = gL.createLinearGradient(0, 0, 0, 300);
+          gradB.addColorStop(0, 'rgba(0,200,120,0.9)');
+          gradB.addColorStop(1, 'rgba(0,200,120,0.12)');
+
+          new Chart(gL, {
+            type: 'bar',
+            data: {
+              labels: ['Without', 'With'],
+              datasets: [{ label: 'Lives saved/1000', data: [40, 68], backgroundColor: [gradA, gradB], borderRadius: 12, barThickness: 44 }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + ' survivors/1000'; }
+                  }
+                }
+              },
+              scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { grid: { display: false } } }
+            }
+          });
+        }
+      } catch (e) { console.warn('Charts init failed', e); }
     }
 
     // Counters animation
-    function initCounters(){
-      const counters = qsa('.stat-number');
-      const obs = new IntersectionObserver(entries=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            const el = entry.target; if(el.dataset.done) return; el.dataset.done = '1';
-            const target = parseFloat(el.getAttribute('data-target'))||0; const isFloat = target%1!==0; let current=0; const steps=80; const step=target/steps;
-            const iv = setInterval(()=>{ current += step; if((!isFloat && current>=target) || (isFloat && current.toFixed(1)>=target)){ el.textContent = isFloat?target.toFixed(1):Math.round(target).toLocaleString(); clearInterval(iv);} else { el.textContent = isFloat?current.toFixed(1):Math.round(current).toLocaleString(); } }, 18);
+    function initCounters() {
+      var counters = qsa('.stat-number');
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var el = entry.target;
+            if (el.dataset.done) { return; }
+            el.dataset.done = '1';
+
+            var target = parseFloat(el.getAttribute('data-target')) || 0;
+            var isFloat = target % 1 !== 0;
+            var current = 0;
+            var steps = 80;
+            var step = target / steps;
+
+            var iv = setInterval(function () {
+              current += step;
+              if ((!isFloat && current >= target) || (isFloat && parseFloat(current.toFixed(1)) >= target)) {
+                el.textContent = isFloat ? target.toFixed(1) : Math.round(target).toLocaleString();
+                clearInterval(iv);
+              } else {
+                el.textContent = isFloat ? current.toFixed(1) : Math.round(current).toLocaleString();
+              }
+            }, 18);
           }
-        })
-      },{threshold:0.4});
-      counters.forEach(c=>obs.observe(c));
+        });
+      }, { threshold: 0.4 });
+
+      counters.forEach(function (c) { obs.observe(c); });
     }
 
     // Leaflet map
-    function initMap(){
-      try{
-        if(typeof L === 'undefined') return; const mapEl = qs('#coverageMap'); if(!mapEl) return;
-        const map = L.map(mapEl).setView([20.5937,78.9629],4);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(map);
-        const locations = [
-          {name:'Bangalore',coords:[12.9716,77.5946],info:'312 rescues'},
-          {name:'Mumbai',coords:[19.0760,72.8777],info:'524 rescues'},
-          {name:'Chennai',coords:[13.0827,80.2707],info:'218 rescues'},
-          {name:'Kathmandu',coords:[27.7172,85.3240],info:'46 rescues'}
+    function initMap() {
+      try {
+        if (typeof L === 'undefined') { return; }
+        var mapEl = qs('#coverageMap');
+        if (!mapEl) { return; }
+        var map = L.map(mapEl).setView([20.5937, 78.9629], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+        var locations = [
+          { name: 'Bangalore', coords: [12.9716, 77.5946], info: '312 rescues' },
+          { name: 'Mumbai', coords: [19.0760, 72.8777], info: '524 rescues' },
+          { name: 'Chennai', coords: [13.0827, 80.2707], info: '218 rescues' },
+          { name: 'Kathmandu', coords: [27.7172, 85.3240], info: '46 rescues' }
         ];
-        locations.forEach(loc=>{ const m=L.circleMarker(loc.coords,{radius:8,fillColor:'#00f1d6',color:'#6bf5ff',weight:1,fillOpacity:0.9}).addTo(map); m.bindPopup(`<strong>${loc.name}</strong><br/>${loc.info}`); });
-        setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} },300);
-      }catch(e){ console.warn('Map init failed', e); }
+
+        locations.forEach(function (loc) {
+          var m = L.circleMarker(loc.coords, { radius: 10, fillColor: '#00f1d6', color: '#6bf5ff', weight: 1, fillOpacity: 0.95 }).addTo(map);
+          m.bindPopup('<strong>' + loc.name + '</strong><br/>' + loc.info);
+        });
+
+        setTimeout(function () { try { map.invalidateSize(); } catch (e) { } }, 300);
+      } catch (e) { console.warn('Map init failed', e); }
     }
 
     // Testimonials autoplay
-    function initTestimonials(){
-      const slides = qsa('#testimonialWrap .testimonial-slide'); if(!slides.length) return; slides.forEach((s,i)=>s.style.transform=`translateX(${i*100}%)`); let idx=0; setInterval(()=>{ idx=(idx+1)%slides.length; slides.forEach((s,i)=>s.style.transform=`translateX(${(i-idx)*100}%)`); },4000);
+    function initTestimonials() {
+      var slides = qsa('#testimonialWrap .testimonial-slide');
+      if (!slides.length) { return; }
+      slides.forEach(function (s, i) { s.style.transform = 'translateX(' + (i * 100) + '%)'; });
+      var idx = 0;
+      setInterval(function () {
+        idx = (idx + 1) % slides.length;
+        slides.forEach(function (s, i) { s.style.transform = 'translateX(' + ((i - idx) * 100) + '%)'; });
+      }, 4000);
     }
 
     // Back to top
-    const back = qs('#backTop'); window.addEventListener('scroll', ()=>{ if(window.scrollY>300) back.style.display='flex'; else back.style.display='none'; }); back.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+    var back = qs('#backTop');
+    window.addEventListener('scroll', function () { if (window.scrollY > 300) { back.style.display = 'flex'; } else { back.style.display = 'none'; } });
+    back.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
     // Scrollspy - highlight nav
-    function initScrollSpy(){ const links = qsa('nav.top-nav .nav-link'); const secs = links.map(a=>qs(a.getAttribute('href'))).filter(Boolean);
-      function setActive(){ const scrollPos = window.scrollY + window.innerHeight/3; let current = secs[0]; for(const s of secs) if(s.offsetTop <= scrollPos) current = s; links.forEach(a=>a.classList.remove('active')); const act = links.find(a=>qs(a.getAttribute('href'))===current); if(act) act.classList.add('active'); }
-      window.addEventListener('scroll', setActive); setActive(); }
+    function initScrollSpy() {
+      var links = qsa('nav.top-nav .nav-link');
+      var secs = links.map(function (a) { return qs(a.getAttribute('href')); }).filter(Boolean);
 
-    // Contact form (mailto placeholder)
-    const form = qs('#contactForm'); if(form) form.addEventListener('submit', function(e){ e.preventDefault(); const name=qs('#name').value||''; const phone=qs('#phone').value||''; const org=qs('#org').value||''; const msg=qs('#message').value||''; const subject = encodeURIComponent('Skylark Demo Request — '+org); const body = encodeURIComponent(`Name: ${name}\nPhone: ${phone}\nOrg: ${org}\n\n${msg}`); window.location.href = `mailto:hello@skylark.ai?subject=${subject}&body=${body}`; });
+      function setActive() {
+        var scrollPos = window.scrollY + window.innerHeight / 3;
+        var current = secs[0];
+        secs.forEach(function (s) { if (s.offsetTop <= scrollPos) { current = s; } });
+        links.forEach(function (a) { a.classList.remove('active'); });
+        var act = links.find(function (a) { return qs(a.getAttribute('href')) === current; });
+        if (act) { act.classList.add('active'); }
+      }
+
+      window.addEventListener('scroll', setActive);
+      setActive();
+    }
+
+    // Contact form (mailto placeholder) — build body safely without multiline template literals to avoid environment issues
+    var form = qs('#contactForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = qs('#name').value || '';
+        var phone = qs('#phone').value || '';
+        var org = qs('#org').value || '';
+        var msg = qs('#message').value || '';
+        var subject = encodeURIComponent('Skylark Demo Request — ' + org);
+        var bodyText = 'Name: ' + name + '
+Phone: ' + phone + '
+Org: ' + org + '
+
+' + msg;
+        var body = encodeURIComponent(bodyText);
+        window.location.href = 'mailto:hello@skylark.ai?subject=' + subject + '&body=' + body;
+      });
+    }
 
     // DOM ready
-    document.addEventListener('DOMContentLoaded', function(){ initCharts(); initCounters(); initMap(); initTestimonials(); initScrollSpy(); });
-  })();
+    document.addEventListener('DOMContentLoaded', function () { initCharts(); initCounters(); initMap(); initTestimonials(); initScrollSpy(); });
+  }());
   </script>
 </body>
 </html>
+
