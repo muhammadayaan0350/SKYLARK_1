@@ -40,7 +40,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(180deg,#050505 0%, #0b0b0b 100%);color:#e6eef6;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px}
-    .wrap{width:100%;max-width:var(--maxw)}
+    .wrap{width:100%;max-width:100%;padding:0 24px} /* make site full-width */
     header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
     .logo{display:flex;align-items:center;gap:14px}
     .mark{background:linear-gradient(90deg,var(--accent),#6bf5ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:22px;letter-spacing:0.6px}
@@ -151,11 +151,20 @@
           <div class="tag">AI Emergency Response Drones</div>
         </div>
       </div>
-      <nav style="display:flex;gap:12px;align-items:center">
-        <a href="#features" class="tag">Features</a>
-        <a href="#usecases" class="tag">Use Cases</a>
-        <a href="#contact" class="tag">Contact</a>
-        <button class="btn btn-primary" onclick="scrollToSection('contact')">Get a Demo</button>
+      <nav class="top-nav" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <a href="#features" class="tag nav-link">Features</a>
+        <a href="#how" class="tag nav-link">How it Works</a>
+        <a href="#io" class="tag nav-link">Input / Output</a>
+        <a href="#metrics" class="tag nav-link">Metrics</a>
+        <a href="#partners" class="tag nav-link">Partners</a>
+        <a href="#pricing" class="tag nav-link">Pricing</a>
+        <a href="#mission-stats" class="tag nav-link">Stats</a>
+        <a href="#tech" class="tag nav-link">Tech</a>
+        <a href="#coverage" class="tag nav-link">Coverage</a>
+        <a href="#awards" class="tag nav-link">Awards</a>
+        <a href="#timeline" class="tag nav-link">Timeline</a>
+        <a href="#testimonials" class="tag nav-link">Testimonials</a>
+        <a href="#contact" class="btn btn-primary" style="margin-left:8px">Get a Demo</a>
       </nav>
     </header>
 
@@ -175,14 +184,7 @@
           </div>
         </div>
 
-        <aside class="panel card">
-          <div class="video">Live Demo Preview — Skylark AI Feed</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-            <div style="font-size:13px;color:var(--muted)">Station: Bangalore — Ready</div>
-            <div style="font-size:13px;color:var(--muted)">Fleet: 6 Drones</div>
-          </div>
-        </aside>
-      </section>
+        </section>
 
       <section id="features" class="card">
         <h2>Key Features</h2>
@@ -210,8 +212,7 @@
         </div>
       </section>
 
-      <section class="card">
-        <h2>Input & Output — Sensors & Actions <span class="badge-small">Interactive</span></h2>
+      <section id="io" class="card">\n        <h2>Input & Output — Sensors & Actions <span class="badge-small">Interactive</span></h2>
         <p class="small">A creative, visual layout showing inputs (what we sense) and outputs (what Skylark does). Outputs are highlighted with badges, short action verbs, and micro-visuals for immediate scanning.</p>
 
         <style>
@@ -364,34 +365,6 @@
       </div>
     </section>
 
-    <section class="card" id="simulation">
-      <h2 class="glow">Live Simulation — Drone deployment demo</h2>
-      <p class="small">Mini demo showing how a drone is deployed, scans the area, detects a victim, and drops aid. This is a simulated loop for demonstration purposes.</p>
-      <div style="display:flex;gap:12px;align-items:flex-start;margin-top:12px">
-        <div style="width:480px;height:320px;border-radius:12px;background:linear-gradient(180deg,#051018,#071726);position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.6);">
-          <!-- simple map mock -->
-          <div id="mapMock" style="position:absolute;inset:0;padding:14px">
-            <svg width="100%" height="100%" viewBox="0 0 480 320" preserveAspectRatio="xMidYMid meet">
-              <rect x="0" y="0" width="480" height="320" rx="12" fill="url(#g)" />
-              <defs>
-                <linearGradient id="g" x1="0" x2="1"><stop offset="0%" stop-color="#05202a"/><stop offset="100%" stop-color="#021016"/></linearGradient>
-              </defs>
-              <circle id="dot1" cx="90" cy="60" r="8" fill="#00f1d6" opacity="0.9"></circle>
-              <circle id="dot2" cx="300" cy="120" r="6" fill="#6bf5ff" opacity="0.9"></circle>
-              <circle id="dot3" cx="220" cy="230" r="6" fill="#00a6ff" opacity="0.9"></circle>
-              <path id="dronePath" d="M90 60 C150 40, 250 80, 300 120" stroke="#6bf5ff" stroke-width="1.6" fill="none" stroke-dasharray="4"></path>
-              <circle id="drone" cx="90" cy="60" r="7" fill="#fff"></circle>
-            </svg>
-          </div>
-        </div>
-
-        <div style="flex:1;min-width:220px">
-          <div id="simText" style="padding:12px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,0.01),rgba(255,255,255,0.006));">Starting simulation...</div>
-          <div style="margin-top:12px;color:var(--muted);font-size:13px">Watch the drone move across the mock map and see how Skylark updates the command center in real-time.</div>
-        </div>
-      </div>
-    </section>
-
     <section class="card" id="testimonials">
       <h2 class="glow">What responders say</h2>
       <div class="testimonials" style="position:relative;overflow:hidden;min-height:120px">
@@ -531,129 +504,23 @@
     }
   
 // Charts: response time and lives saved
-document.addEventListener('DOMContentLoaded', function(){
-  try{
-    const rCtx = document.getElementById('chartResponse').getContext('2d');
-    new Chart(rCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Traditional Response', 'Skylark Drone Response'],
-        datasets: [{
-          label: 'Average response time (minutes)',
-          data: [25, 5],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: { y: { beginAtZero: true } }
-      }
-    });
-
-    const lCtx = document.getElementById('chartLives').getContext('2d');
-    new Chart(lCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Without Skylark', 'With Skylark'],
-        datasets: [{
-          label: 'Estimated lives saved per 1000 incidents',
-          data: [40, 68],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: { y: { beginAtZero: true } }
-      }
-    });
-  }catch(e){console.warn('Charts failed to render', e)}
-});
-</script>
 <script>
-// Extra UI: fade-up reveal and back-to-top behavior
-document.addEventListener('DOMContentLoaded', function(){
-  // add fade-up class to cards
-  const cards = document.querySelectorAll('.card');
-  cards.forEach(c=>c.classList.add('fade-up'));
-  // observe visibility
-  const io = new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){ entry.target.classList.add('visible'); }
-    });
-  },{threshold:0.12});
-  cards.forEach(c=>io.observe(c));
-
-  // back-to-top button
-  const back = document.getElementById('backTop');
-  if(back){
-    window.addEventListener('scroll', ()=>{
-      if(window.scrollY>300) back.classList.add('show'); else back.classList.remove('show');
-    });
-    back.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+// Navigation: smooth scroll + scrollspy active state
+(function(){
+  const links = Array.from(document.querySelectorAll('.top-nav .nav-link'));
+  const sections = links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function setActive(){
+    const scrollPos = window.scrollY + window.innerHeight/3;
+    let current = sections[0];
+    for(const s of sections){ if(s.offsetTop <= scrollPos) current = s; }
+    links.forEach(a=> a.classList.remove('active'));
+    const activeLink = links.find(a=>document.querySelector(a.getAttribute('href'))===current);
+    if(activeLink) activeLink.classList.add('active');
   }
-
-  // Stat counters animation when visible
-  const counters = document.querySelectorAll('.stat-number');
-  const counterObserver = new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        const el = entry.target; if(el.dataset._done) return; el.dataset._done = true;
-        const target = parseFloat(el.getAttribute('data-target')) || 0;
-        let current = 0; const isFloat = (target%1!==0);
-        const step = target/80;
-        const iv = setInterval(()=>{
-          current += step;
-          if((!isFloat && current>=target) || (isFloat && current.toFixed(1)>=target)){
-            el.textContent = isFloat ? target.toFixed(1) : Math.round(target);
-            clearInterval(iv);
-          } else {
-            el.textContent = isFloat ? current.toFixed(1) : Math.round(current);
-          }
-        },18);
-      }
-    });
-  },{threshold:0.4});
-  counters.forEach(c=>counterObserver.observe(c));
-
-  // Initialize Leaflet map for coverage
-  try{
-    const map = L.map('coverageMap', {zoomControl:false}).setView([20.5937,78.9629],4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:''}).addTo(map);
-    const locations = [
-      {name:'Bangalore',coords:[12.9716,77.5946],info:'Station: Bangalore — 312 rescues'},
-      {name:'Mumbai',coords:[19.0760,72.8777],info:'Mumbai deployments — 524 rescues'},
-      {name:'Chennai',coords:[13.0827,80.2707],info:'Chennai deployments — 218 rescues'},
-      {name:'Kathmandu',coords:[27.7172,85.3240],info:'Nepal missions — 46 rescues'}
-    ];
-    locations.forEach(loc=>{
-      const m = L.circleMarker(loc.coords,{radius:8,fillColor:'#00f1d6',color:'#6bf5ff',weight:1,fillOpacity:0.9}).addTo(map);
-      m.bindPopup(`<strong>${loc.name}</strong><br/>${loc.info}`);
-    });
-  }catch(e){console.warn('Leaflet init failed',e)};
-
-});
-</script>
-document.addEventListener('DOMContentLoaded', function(){
-  // add fade-up class to cards
-  const cards = document.querySelectorAll('.card');
-  cards.forEach(c=>c.classList.add('fade-up'));
-  // observe visibility
-  const io = new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){ entry.target.classList.add('visible'); }
-    });
-  },{threshold:0.12});
-  cards.forEach(c=>io.observe(c));
-
-  // back-to-top button
-  const back = document.getElementById('backTop');
-  if(back){
-    window.addEventListener('scroll', ()=>{
-      if(window.scrollY>300) back.classList.add('show'); else back.classList.remove('show');
-    });
-    back.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
-  }
-});
+  links.forEach(a=>a.addEventListener('click', function(e){ e.preventDefault(); const target=document.querySelector(this.getAttribute('href')); if(target) target.scrollIntoView({behavior:'smooth',block:'start'}); }));
+  window.addEventListener('scroll', setActive);
+  setActive();
+})();
 </script>
 </body>
 </html>
