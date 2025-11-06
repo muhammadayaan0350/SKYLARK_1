@@ -1,10 +1,8 @@
+
 <!--
   Skylark — AI Emergency Drones
   Single-file website (HTML + CSS + JS)
-  How to use: Save this file as index.html and upload to your GitHub repo (root or docs/).
-  Then enable GitHub Pages (Settings → Pages) to deploy.
-
-  Contact details: City: Bangalore, Country: India, Phone: +91-90000-00000 (placeholder)
+  Save as index.html and deploy (GitHub Pages compatible).
 -->
 
 <!doctype html>
@@ -13,455 +11,219 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Skylark — AI Emergency Drones</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Leaflet for coverage map -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="" crossorigin=""></script>
-  <style>
-    /* Map and mission stats styles */
-    #coverageMap{width:100%;height:360px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
-    .stats-row{display:flex;gap:12px;align-items:stretch}
-    .stat-card{flex:1;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));text-align:center}
-    .stat-number{font-size:30px;font-weight:800;color:var(--accent)}
-    .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    .tech-card{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));display:flex;gap:12px;align-items:center}
-    .tech-icon{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent),#6bf5ff);color:#02121a;font-weight:800}
-    .awards{display:flex;gap:10px;flex-wrap:wrap}
-    .award-badge{padding:8px 12px;border-radius:999px;background:linear-gradient(90deg,#ffd86b,#ff6b6b);color:#031018;font-weight:700}
-    .timeline{display:flex;gap:12px;align-items:center}
-    .timeline .step{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));min-width:160px;text-align:center}
-  </style>
   <meta name="description" content="Skylark — AI-powered emergency response drones. Rapid deployment, real-time analytics, life-saving payloads.">
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
-    :root{
-      --bg:#0b0b0b; --card:#0f1720; --muted:#9aa4b2; --accent:#00d1ff; --glass: rgba(255,255,255,0.04);
-      --radius:16px; --maxw:1100px;
-      font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    }
+    :root{ --bg:#0b0b0b; --card:#0f1720; --muted:#9aa4b2; --accent:#00d1ff; --glass: rgba(255,255,255,0.04); --radius:16px }
     *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#050505 0%, #0b0b0b 100%);color:#e6eef6;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px}
-    .wrap{width:100%;max-width:100%;padding:0 24px} /* make site full-width */
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
-    .logo{display:flex;align-items:center;gap:14px}
-    .mark{background:linear-gradient(90deg,var(--accent),#6bf5ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:22px;letter-spacing:0.6px}
-    .tag{font-size:12px;color:var(--muted);}
+    body{margin:0;background:linear-gradient(180deg,#050505,#0b0b0b);color:#e6eef6;font-family:Inter, Poppins, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;}
+    .wrap{width:100%;max-width:1200px;margin:0 auto;padding:28px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .logo .mark{font-weight:800;color:transparent;background:linear-gradient(90deg,var(--accent),#6bf5ff);-webkit-background-clip:text;background-clip:text;font-size:20px}
+    .tag{font-size:12px;color:var(--muted)}
+    nav.top-nav{display:flex;gap:10px;flex-wrap:wrap}
+    nav.top-nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px}
+    nav.top-nav a.active{background:linear-gradient(90deg,rgba(0,209,255,0.08),rgba(107,245,255,0.03));color:#e6faff}
 
-    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;margin-bottom:28px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:28px;box-shadow:0 6px 30px rgba(2,6,23,0.6);backdrop-filter: blur(6px);}
-
-    .headline{font-size:34px;line-height:1.03;font-weight:800;margin:0 0 12px}
-    .lead{color:var(--muted);margin:0 0 18px}
-    .cta-row{display:flex;gap:12px}
-    .btn{padding:12px 16px;border-radius:12px;border:0;cursor:pointer;font-weight:600}
-    .btn-primary{background:var(--accent);color:#031018}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-
-    .stats{display:flex;gap:12px;margin-top:18px}
-    .stat{padding:10px 12px;border-radius:12px;background:var(--glass);color:var(--muted);font-size:13px}
-
-    .panel{display:flex;flex-direction:column;gap:12px}
-    .video{height:240px;border-radius:12px;overflow:hidden;background:linear-gradient(90deg,#071726,#041018);display:flex;align-items:center;justify-content:center;color:var(--muted)}
-
-    section{margin-bottom:24px}
-    h2{margin:0 0 12px;font-size:20px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;margin-top:20px}
+    h1{margin:0;font-size:32px}
+    h2{margin:0 0 8px;font-size:18px}
     p.small{margin:0;color:var(--muted)}
 
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    .feature{padding:16px;border-radius:12px;background:rgba(255,255,255,0.02)}
-    .feature h3{margin:0 0 6px;font-size:15px}
-    .feature p{margin:0;color:var(--muted);font-size:13px}
+    .feature{padding:12px;border-radius:8px;background:rgba(255,255,255,0.01)}
 
-    .sensors-table{width:100%;border-collapse:collapse}
-    .sensors-table th,.sensors-table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
-    .sensors-table th{color:var(--muted);font-weight:600}
+    /* IO styles */
+    .io-row{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));}
+    .io-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent),#6bf5ff);color:#031018;font-weight:800}
+    .io-output{text-align:right;min-width:200px}
+    .output-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-weight:700;background:linear-gradient(90deg,#0ff1d6,#00a6ff);color:#02121a}
 
-    .usecase{display:flex;gap:12px;align-items:flex-start}
-    .usecase .emoji{font-size:28px}
+    /* Metrics */
+    .stats-row{display:flex;gap:12px}
+    .stat-card{flex:1;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));text-align:center}
+    .stat-number{font-size:28px;font-weight:800;color:var(--accent)}
 
-    footer{display:flex;justify-content:space-between;gap:12px;align-items:center;padding-top:18px;border-top:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+    /* Map */
+    #coverageMap{width:100%;height:360px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
 
-    .contact-card{display:flex;flex-direction:column;gap:8px}
-    .contact-card strong{font-size:15px}
+    /* Timeline */
+    .timeline{display:flex;gap:12px;flex-wrap:wrap}
+    .step{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));min-width:140px;text-align:center}
 
-    .testimonials{display:flex;flex-direction:column;gap:8px}
-    .testimonial{padding:12px;border-radius:10px;background:rgba(0,0,0,0.25);color:var(--muted)}
+    /* Misc */
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
+    .btn-primary{background:var(--accent);color:#02121a}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
 
-    @media (max-width:900px){
-      .hero{grid-template-columns:1fr;}
-      .grid-3{grid-template-columns:1fr}
-    }
+    footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;color:var(--muted)}
 
-  </style>
-  <style>
-    /* Visual lift: highlights, badges, cards, and improved spacing */
-    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,var(--accent),#6bf5ff);color:#031018;font-weight:700;font-size:12px}
-    .highlight{background:linear-gradient(90deg, rgba(0,209,255,0.06), rgba(107,245,255,0.03));border-left:4px solid var(--accent);padding:14px;border-radius:12px;margin-top:10px;color:var(--muted)}
-    h2{display:flex;align-items:center;gap:10px}
-    h2 .badge-small{font-size:12px;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,0.03);color:var(--muted);font-weight:600}
-
-    /* Feature cards with subtle icon bar */
-    .feature{position:relative;padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.012), rgba(255,255,255,0.02));box-shadow:inset 0 1px 0 rgba(255,255,255,0.01)}
-    .feature:before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,var(--accent),#6bf5ff);border-radius:8px 0 0 8px}
-    .feature h3{margin-left:12px}
-
-    /* Usecase cards */
-    .usecase{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));padding:12px;border-radius:12px;display:flex;gap:12px;align-items:center}
-    .usecase .emoji{font-size:30px;min-width:46px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);border-radius:10px}
-
-    /* Testimonials — caller-style cards */
-    .testimonial{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.18));border-left:4px solid rgba(255,255,255,0.04);padding:14px}
-    .testimonial strong{display:block;color:#fff}
-
-    /* Metrics cards: emphasize numbers */
-    .card canvas{background:transparent}
-    .metric-number{font-size:28px;font-weight:800;color:var(--accent)}
-
-    /* Hero tweaks */
-    .headline{font-size:40px}
-    .lead{font-size:15px}
-
-    /* Contact panel highlight */
-    .contact-card{background:linear-gradient(90deg, rgba(0,209,255,0.02), rgba(107,245,255,0.01));padding:12px;border-radius:12px}
-
-    /* Form inputs clearer */
-    input, textarea{outline:none}
-
-    @media (max-width:900px){
-      .hero{grid-template-columns:1fr}
-      .headline{font-size:28px}
-    }
-  </style>
-  <style>
-    /* Scroll animations and back-to-top button */
-    html{scroll-behavior:smooth}
-    .fade-up{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.9,.2,1),transform .7s cubic-bezier(.2,.9,.2,1)}
-    .fade-up.visible{opacity:1;transform:none}
-    .back-to-top{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#6bf5ff);display:flex;align-items:center;justify-content:center;color:#02121a;font-weight:800;box-shadow:0 8px 30px rgba(0,209,255,0.12);cursor:pointer;z-index:120;opacity:0;transform:translateY(12px);transition:opacity .3s,transform .3s}
-    .back-to-top.show{opacity:1;transform:none}
-    .back-to-top:focus{outline:2px solid rgba(255,255,255,0.06)}
-    .back-to-top .arrow{font-size:18px}
+    @media(max-width:900px){.grid-3{grid-template-columns:1fr}.stats-row{flex-direction:column}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div class="logo">
-        <div style="display:flex;flex-direction:column;line-height:1">
-          <div class="mark">SKYLARK</div>
-          <div class="tag">AI Emergency Response Drones</div>
-        </div>
+        <div class="mark">SKYLARK</div>
+        <div class="tag">AI Emergency Response Drones</div>
       </div>
-      <nav class="top-nav" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <a href="#features" class="tag nav-link">Features</a>
-        <a href="#how" class="tag nav-link">How it Works</a>
-        <a href="#io" class="tag nav-link">Input / Output</a>
-        <a href="#metrics" class="tag nav-link">Metrics</a>
-        <a href="#partners" class="tag nav-link">Partners</a>
-        <a href="#pricing" class="tag nav-link">Pricing</a>
-        <a href="#mission-stats" class="tag nav-link">Stats</a>
-        <a href="#tech" class="tag nav-link">Tech</a>
-        <a href="#coverage" class="tag nav-link">Coverage</a>
-        <a href="#awards" class="tag nav-link">Awards</a>
-        <a href="#timeline" class="tag nav-link">Timeline</a>
-        <a href="#testimonials" class="tag nav-link">Testimonials</a>
-        <a href="#contact" class="btn btn-primary" style="margin-left:8px">Get a Demo</a>
+      <nav class="top-nav">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how" class="nav-link">How it Works</a>
+        <a href="#io" class="nav-link">Input/Output</a>
+        <a href="#metrics" class="nav-link">Metrics</a>
+        <a href="#partners" class="nav-link">Partners</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#mission-stats" class="nav-link">Stats</a>
+        <a href="#tech" class="nav-link">Tech</a>
+        <a href="#coverage" class="nav-link">Coverage</a>
+        <a href="#awards" class="nav-link">Awards</a>
+        <a href="#timeline" class="nav-link">Timeline</a>
+        <a href="#testimonials" class="nav-link">Testimonials</a>
+        <a href="#contact" class="btn btn-primary">Get a Demo</a>
       </nav>
     </header>
 
     <main>
-      <section class="hero">
-        <div class="card">
-          <h1 class="headline">Skylark — When Help Needs to Arrive Sooner</h1>
-          <p class="lead">Autonomous AI drones for first-response: live mapping, victim detection, hazard analysis, and rapid life-saving deliveries — deployed within minutes.</p>
-          <div class="cta-row">
-            <button class="btn btn-primary" onclick="scrollToSection('features')">See Features</button>
-            <button class="btn btn-ghost" onclick="scrollToSection('usecases')">Explore Use Cases</button>
-          </div>
-          <div class="stats">
-            <div class="stat">Response: &lt;5 min</div>
-            <div class="stat">24/7 Operation</div>
-            <div class="stat">Real-time AI Insights</div>
-          </div>
-        </div>
-
-        </section>
+      <section id="hero" class="card">
+        <h1>Skylark — When Help Needs to Arrive Sooner</h1>
+        <p class="small">Autonomous AI drones for first-response: live mapping, victim detection, hazard analysis, and rapid life-saving deliveries — deployed within minutes.</p>
+      </section>
 
       <section id="features" class="card">
         <h2>Key Features</h2>
-        <p class="small">Designed for speed, safety, and operational clarity — Skylark's AI drone fleet gives first responders the intelligence they need the moment a crisis begins.</p>
-        <div class="grid-3" style="margin-top:14px">
-          <div class="feature"><h3>Rapid Autonomous Deployment</h3><p>Launch in seconds, reach the scene within minutes, and start streaming actionable data.</p></div>
-          <div class="feature"><h3>AI Victim Detection</h3><p>Thermal and visual AI pinpoint victims and prioritize rescue routes.</p></div>
-          <div class="feature"><h3>Payload Delivery</h3><p>Deliver defibrillators, first-aid, communication beacons, and rescue tools.</p></div>
-          <div class="feature"><h3>3D Mapping & LiDAR</h3><p>Real-time terrain and structure mapping for safer deployment of human teams.</p></div>
-          <div class="feature"><h3>Hazard Sensing</h3><p>Gas, smoke, and environmental sensors warn of unseen dangers to rescue teams.</p></div>
-          <div class="feature"><h3>Central Command Integration</h3><p>Integrates with dispatch, hospitals, and public safety systems for coordinated response.</p></div>
+        <p class="small">Designed for speed, safety, and operational clarity.</p>
+        <div class="grid-3">
+          <div class="feature"><strong>Rapid Autonomous Deployment</strong><div class="small">Launch in seconds and start streaming actionable data.</div></div>
+          <div class="feature"><strong>AI Victim Detection</strong><div class="small">Thermal & visual AI pinpoint victims and prioritize rescue routes.</div></div>
+          <div class="feature"><strong>Payload Delivery</strong><div class="small">Deliver defibrillators, first-aid kits and comms.</div></div>
+          <div class="feature"><strong>3D Mapping & LiDAR</strong><div class="small">Real-time terrain and structure mapping.</div></div>
+          <div class="feature"><strong>Hazard Sensing</strong><div class="small">Gas, smoke and chemical detection.</div></div>
+          <div class="feature"><strong>Command Integration</strong><div class="small">Seamless dispatch and hospital coordination.</div></div>
         </div>
       </section>
 
       <section id="how" class="card">
-        <h2>How Skylark Solves the Problem <span class="badge-small">Why it works</span></h2>
-        <p class="small">Skylark closes the gap between an incident and effective rescue by providing instant situational awareness, prioritised victim detection, and life-saving payloads — all within minutes.</p>
-        <div class="grid-3" style="margin-top:14px">
-          <div class="feature"><h3>Instant Assessment</h3><p>Drones arrive and scan the scene in under <strong>5 minutes</strong>, streaming thermal + visual overlays so teams know where to go immediately.</p></div>
-          <div class="feature"><h3>Prioritised Response</h3><p>AI ranks victims by severity and maps safe approach routes, so medical teams focus on the most critical cases first.</p></div>
-          <div class="feature"><h3>Early Aid Delivery</h3><p>Payload bay delivers defibrillators and first-aid within minutes — bridging the gap until ambulances arrive.</p></div>
-          <div class="feature"><h3>Hazard Avoidance</h3><p>Gas, structural and fire sensors mark dangerous zones, preventing secondary casualties among responders.</p></div>
-          <div class="feature"><h3>Coordinated Action</h3><p>Live geo-tagged data integrates with command centers to dispatch the right team, equipment and route instantly.</p></div>
-          <div class="feature"><h3>Continuous Monitoring</h3><p>Persistent drone patrols maintain situational awareness, track moving hazards, and update rescue strategies in real-time.</p></div>
+        <h2>How Skylark Solves the Problem</h2>
+        <p class="small">Instant situational awareness, prioritized victim detection, and life-saving payloads.</p>
+        <div class="grid-3" style="margin-top:12px">
+          <div class="feature"><strong>Instant Assessment</strong><div class="small">Scan & report in under 5 minutes.</div></div>
+          <div class="feature"><strong>Prioritized Response</strong><div class="small">AI ranks severity for responders.</div></div>
+          <div class="feature"><strong>Early Aid</strong><div class="small">Deliver defibrillators and survival kits.</div></div>
         </div>
       </section>
 
-      <section id="io" class="card">\n        <h2>Input & Output — Sensors & Actions <span class="badge-small">Interactive</span></h2>
-        <p class="small">A creative, visual layout showing inputs (what we sense) and outputs (what Skylark does). Outputs are highlighted with badges, short action verbs, and micro-visuals for immediate scanning.</p>
-
-        <style>
-          /* Local styles for the IO cards */
-          .io-row{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006));}
-          .io-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent),#6bf5ff);color:#031018;font-weight:800;flex-shrink:0}
-          .io-main{flex:1}
-          .io-output{text-align:right;min-width:220px}
-          .output-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;font-weight:700;background:linear-gradient(90deg,#0ff1d6,#00a6ff);color:#02121a}
-          .output-small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
-          .pulse{width:12px;height:12px;border-radius:99px;background:rgba(255,255,255,0.95);box-shadow:0 0 0 6px rgba(0,209,255,0.15);animation:pulse 1.8s infinite}
-          @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,209,255,0.25)}70%{box-shadow:0 0 0 12px rgba(0,209,255,0)}100%{box-shadow:0 0 0 0 rgba(0,209,255,0)}}
-        </style>
-
-        <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px">
-
-          <div class="io-row">
-            <div class="io-icon">📡</div>
-            <div class="io-main">
-              <div style="font-weight:700">GPS + IMU — Navigation</div>
-              <div style="color:var(--muted);font-size:13px">Precise geo-tagging for autonomous navigation and incident coordinates.</div>
-            </div>
-            <div class="io-output">
-              <div class="output-badge">LIVE MAP</div>
-              <div class="output-small">Geo-tagged map + route guidance</div>
-            </div>
-          </div>
-
-          <div class="io-row">
-            <div class="io-icon">🌡️</div>
-            <div class="io-main">
-              <div style="font-weight:700">Thermal & IR Cameras — Imaging</div>
-              <div style="color:var(--muted);font-size:13px">Detects heat signatures through smoke and debris to find victims at night or in low visibility.</div>
-            </div>
-            <div class="io-output">
-              <div class="output-badge">VICTIM HEAT</div>
-              <div class="output-small">Pinpoint coords + thermal overlay</div>
-            </div>
-          </div>
-
-          <div class="io-row">
-            <div class="io-icon">📐</div>
-            <div class="io-main">
-              <div style="font-weight:700">LiDAR / Depth — 3D Mapping</div>
-              <div style="color:var(--muted);font-size:13px">Creates precise 3D maps for obstacle avoidance and structural safety checks.</div>
-            </div>
-            <div class="io-output">
-              <div class="output-badge">SAFE PATH</div>
-              <div class="output-small">3D map + approach lanes</div>
-            </div>
-          </div>
-
-          <div class="io-row">
-            <div class="io-icon">⚠️</div>
-            <div class="io-main">
-              <div style="font-weight:700">Gas & Smoke Sensors — Hazard</div>
-              <div style="color:var(--muted);font-size:13px">Detects dangerous gases and smoke to warn teams and mark unsafe zones.</div>
-            </div>
-            <div class="io-output">
-              <div class="output-badge" style="background:linear-gradient(90deg,#ffb86b,#ff6b6b)">NO-GO</div>
-              <div class="output-small">Hazard alerts + area lockdown</div>
-            </div>
-          </div>
-
-          <div class="io-row">
-            <div class="io-icon">📦</div>
-            <div class="io-main">
-              <div style="font-weight:700">Payload Bay — Output</div>
-              <div style="color:var(--muted);font-size:13px">Delivers defibrillators, first-aid, flotation devices, and communication beacons to victims.</div>
-            </div>
-            <div class="io-output">
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="output-badge">DROP</div><div class="output-small">Life-saving kit deliveries</div></div>
-            </div>
-          </div>
-
-          <div class="io-row">
-            <div class="io-icon">🔊</div>
-            <div class="io-main">
-              <div style="font-weight:700">Two-way Speaker & 5G Link — Comm</div>
-              <div style="color:var(--muted);font-size:13px">Communicates with victims and streams geo-tagged data to command centers in real-time.</div>
-            </div>
-            <div class="io-output">
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="output-badge">TALK</div><div class="output-small">Voice guidance + live feed <span class="pulse"></span></div></div>
-            </div>
-          </div>
-
+      <section id="io" class="card">
+        <h2>Input & Output — Sensors & Actions</h2>
+        <div style="margin-top:12px">
+          <div class="io-row"><div class="io-icon">📡</div><div style="flex:1"><strong>GPS + IMU</strong><div class="small">Precise geo-tagging</div></div><div class="io-output"><span class="output-badge">LIVE MAP</span><div class="small">Geo-tagged routes</div></div></div>
+          <div class="io-row"><div class="io-icon">🌡️</div><div style="flex:1"><strong>Thermal & IR</strong><div class="small">Detect heat signatures</div></div><div class="io-output"><span class="output-badge">VICTIM HEAT</span><div class="small">Pinpoint coords</div></div></div>
+          <div class="io-row"><div class="io-icon">📐</div><div style="flex:1"><strong>LiDAR / Depth</strong><div class="small">3D mapping</div></div><div class="io-output"><span class="output-badge">SAFE PATH</span><div class="small">Approach lanes</div></div></div>
+          <div class="io-row"><div class="io-icon">⚠️</div><div style="flex:1"><strong>Gas & Smoke</strong><div class="small">Hazard detection</div></div><div class="io-output"><span class="output-badge" style="background:linear-gradient(90deg,#ffb86b,#ff6b6b)">NO-GO</span><div class="small">Area lockdown</div></div></div>
+          <div class="io-row"><div class="io-icon">📦</div><div style="flex:1"><strong>Payload Bay</strong><div class="small">Deliver kits & beacons</div></div><div class="io-output"><span class="output-badge">DROP</span><div class="small">Life-saving deliveries</div></div></div>
+          <div class="io-row"><div class="io-icon">🔊</div><div style="flex:1"><strong>Two-way Comm</strong><div class="small">Voice & live feed</div></div><div class="io-output"><span class="output-badge">TALK</span><div class="small">Voice guidance</div></div></div>
         </div>
       </section>
 
       <section id="metrics" class="card">
         <h2>Impact & Metrics</h2>
-        <p class="small">Visualising the real-world impact: response time reduction and estimated lives saved when Skylark is deployed alongside traditional responders.</p>
+        <p class="small">Visualising response time reduction and estimated lives saved.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-          <div class="card" style="padding:12px">
-            <h3 style="margin:6px 0 8px">Average Response Time (minutes)</h3>
-            <canvas id="chartResponse" style="max-width:100%;height:240px"></canvas>
-          </div>
-          <div class="card" style="padding:12px">
-            <h3 style="margin:6px 0 8px">Estimated Lives Saved per 1000 Incidents</h3>
-            <canvas id="chartLives" style="max-width:100%;height:240px"></canvas>
-          </div>
-        </div>
-        <div style="margin-top:10px;color:var(--muted);font-size:13px">Note: figures are illustrative based on conservative assumptions: <em>Skylark reduces time-to-first-aid and increases immediate life-saving interventions.</em></div>
-      </section>
-
-      <section class="card">
-        <h2>Testimonials</h2>
-        <div class="testimonials">
-          <div class="testimonial"><strong>Rohit Menon, Fire Brigade Officer</strong><div style="margin-top:6px;color:var(--muted)">"Skylark cut our initial assessment time in half — the thermal overlays are a game-changer."</div></div>
-          <div class="testimonial"><strong>Dr. Asha Rao, Emergency Physician</strong><div style="margin-top:6px;color:var(--muted)">"We got a defib to a patient 4 minutes faster than the ambulance — that's a saved life."</div></div>
-          <div class="testimonial"><strong>Neha Kapoor, NGO Disaster Lead</strong><div style="margin-top:6px;color:var(--muted)">"Early detection meant fewer people stranded and more focused rescues."</div></div>
+          <div class="card"><h3>Average Response Time (minutes)</h3><div style="height:320px"><canvas id="chartResponse"></canvas></div></div>
+          <div class="card"><h3>Estimated Lives Saved per 1000 Incidents</h3><div style="height:320px"><canvas id="chartLives"></canvas></div></div>
         </div>
       </section>
 
-      <!-- Partnerships, Pricing, Simulation, Testimonials (moved above contact) -->
-    <section class="card" id="partners">
-      <h2 class="glow">Trusted by responders, powered by innovation.</h2>
-      <p class="small">Skylark partners with emergency services and NGOs to bring faster, safer response to communities.</p>
-      <div style="display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap">
-        <!-- Placeholder logos -->
-        <div style="width:140px;height:64px;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center">NDRF</div>
-        <div style="width:140px;height:64px;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center">Bengaluru Fire Dept</div>
-        <div style="width:140px;height:64px;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center">AI4Good</div>
-        <div style="width:140px;height:64px;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center">Rescue Co.</div>
-      </div>
-    </section>
+      <section id="partners" class="card">
+        <h2>Trusted by responders</h2>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+          <div style="width:160px;height:64px;border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center">NDRF</div>
+          <div style="width:160px;height:64px;border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center">Bengaluru Fire Dept</div>
+          <div style="width:160px;height:64px;border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center">AI4Good</div>
+        </div>
+      </section>
 
-    <section class="card" id="pricing">
-      <h2 class="glow">Deployment & Pricing</h2>
-      <p class="small">Flexible packages designed for local teams up to nationwide deployments. Contact us for custom quotes and pilots.</p>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
-        <div class="feature">
-          <h3>Starter</h3>
-          <p class="small">Ideal for local fire departments and small municipalities.</p>
-          <div style="margin-top:8px;font-weight:800;font-size:20px">₹ 2,50,000</div>
-          <div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-primary" onclick="mailtoPlan('Starter')">Request Demo</button><button class="btn btn-ghost" onclick="partnerPlan('Starter')">Partner with Skylark</button></div>
+      <section id="pricing" class="card">
+        <h2>Deployment & Pricing</h2>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+          <div class="feature"><strong>Starter</strong><div class="small">Local teams — ₹2,50,000</div></div>
+          <div class="feature"><strong>Pro</strong><div class="small">City-scale — ₹10,00,000</div></div>
+          <div class="feature"><strong>Enterprise</strong><div class="small">Nationwide — Custom</div></div>
         </div>
-        <div class="feature">
-          <h3>Pro</h3>
-          <p class="small">City-scale deployment with integrated command center tools.</p>
-          <div style="margin-top:8px;font-weight:800;font-size:20px">₹ 10,00,000</div>
-          <div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-primary" onclick="mailtoPlan('Pro')">Request Demo</button><button class="btn btn-ghost" onclick="partnerPlan('Pro')">Partner with Skylark</button></div>
-        </div>
-        <div class="feature">
-          <h3>Enterprise</h3>
-          <p class="small">Nationwide or NGO-level deployments, custom SLAs and support.</p>
-          <div style="margin-top:8px;font-weight:800;font-size:20px">Custom</div>
-          <div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-primary" onclick="mailtoPlan('Enterprise')">Request Demo</button><button class="btn btn-ghost" onclick="partnerPlan('Enterprise')">Partner with Skylark</button></div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="card" id="testimonials">
-      <h2 class="glow">What responders say</h2>
-      <div class="testimonials" style="position:relative;overflow:hidden;min-height:120px">
-        <div class="testimonial-slide" style="transition:transform .6s ease">
-          <div class="testimonial"><strong>Dr. Mehta, Trauma Center</strong><div style="margin-top:6px;color:var(--muted)">"Skylark drones reached before our ambulance — they saved three lives that night."</div></div>
+      <section id="testimonials" class="card">
+        <h2>What responders say</h2>
+        <div class="card" id="testimonialWrap" style="overflow:hidden;min-height:100px">
+          <div class="testimonial-slide"><div class="testimonial"><strong>Dr. Mehta</strong><div class="small">"Skylark drones arrived before our ambulance — saved lives."</div></div></div>
+          <div class="testimonial-slide"><div class="testimonial"><strong>NDRF Officer</strong><div class="small">"Accurate victim detection during floods."</div></div></div>
         </div>
-        <div class="testimonial-slide" style="transition:transform .6s ease">
-          <div class="testimonial"><strong>NDRF Officer</strong><div style="margin-top:6px;color:var(--muted)">"The AI detection during the floods was unbelievably accurate."</div></div>
-        </div>
-        <div class="testimonial-slide" style="transition:transform .6s ease">
-          <div class="testimonial"><strong>Rohit Menon, Fire Brigade</strong><div style="margin-top:6px;color:var(--muted)">"Thermal overlays let us zero in immediately — assessment time halved."</div></div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="mission-stats" class="card">
-        <h2>Mission Stats Dashboard <span class="badge-small">Real impact</span></h2>
-        <p class="small">Live-style counters showing Skylark's real-world impact (animated on scroll).</p>
-        <div class="stats-row" style="margin-top:12px">
-          <div class="stat-card">
-            <div class="stat-number" data-target="10248">0</div>
-            <div style="color:var(--muted);margin-top:6px">Total rescues</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" data-target="62">0</div>
-            <div style="color:var(--muted);margin-top:6px">Cities covered</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" data-target="1.8">0</div>
-            <div style="color:var(--muted);margin-top:6px">Avg response time (min)</div>
-          </div>
+      <section id="mission-stats" class="card">
+        <h2>Mission Stats Dashboard</h2>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-number" data-target="10248">10,248</div><div class="small">Total rescues</div></div>
+          <div class="stat-card"><div class="stat-number" data-target="62">62</div><div class="small">Cities covered</div></div>
+          <div class="stat-card"><div class="stat-number" data-target="1.8">1.8</div><div class="small">Avg response time (min)</div></div>
         </div>
       </section>
 
       <section id="tech" class="card">
-        <h2>Tech Stack & Innovations <span class="badge-small">What makes Skylark unique</span></h2>
-        <p class="small">A quick glance at the core systems that power our AI-first rescue drones.</p>
-        <div class="tech-grid" style="margin-top:12px">
-          <div class="tech-card"><div class="tech-icon">👁️</div><div><strong>AI Vision Module</strong><div style="color:var(--muted);font-size:13px">Detects victims under debris and in low-visibility environments.</div></div></div>
-          <div class="tech-card"><div class="tech-icon">❄️</div><div><strong>Thermal Fusion System</strong><div style="color:var(--muted);font-size:13px">Night-time rescue accuracy up to 98% with multisensor fusion.</div></div></div>
-          <div class="tech-card"><div class="tech-icon">🧭</div><div><strong>Autonomous Pathfinding</strong><div style="color:var(--muted);font-size:13px">Adaptive routing for wind and terrain to keep drones safe and fast.</div></div></div>
+        <h2>Tech Stack & Innovations</h2>
+        <div class="tech-grid">
+          <div class="tech-card"><div class="tech-icon">👁️</div><div><strong>AI Vision Module</strong><div class="small">Detects victims under debris.</div></div></div>
+          <div class="tech-card"><div class="tech-icon">❄️</div><div><strong>Thermal Fusion</strong><div class="small">98% night accuracy.</div></div></div>
+          <div class="tech-card"><div class="tech-icon">🧭</div><div><strong>Autonomous Pathfinding</strong><div class="small">Adaptive routing.</div></div></div>
         </div>
       </section>
 
       <section id="coverage" class="card">
-        <h2>Global Coverage Map <span class="badge-small">Where we're active</span></h2>
-        <p class="small">Interactive coverage map — shows cities and incidents where Skylark has been deployed.</p>
-        <div id="coverageMap" style="margin-top:12px"></div>
-        <div style="margin-top:10px;color:var(--muted);font-size:13px">Tip: hover or tap a glowing point to see deployment stats.</div>
+        <h2>Global Coverage Map</h2>
+        <div id="coverageMap"></div>
       </section>
 
       <section id="awards" class="card">
-        <h2>Awards & Recognition <span class="badge-small">Credibility</span></h2>
-        <div class="awards" style="margin-top:12px">
-          <div class="award-badge">🏆 AI4Good Innovation 2025 Winner</div>
-          <div class="award-badge">🌐 Partnered with ISRO Disaster Response Unit</div>
-          <div class="award-badge">🎖️ UN SDG 9 Initiative Contributor</div>
+        <h2>Awards & Recognition</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <div class="award-badge">🏆 AI4Good Innovation 2025</div>
+          <div class="award-badge">🌐 Partnered with ISRO</div>
+          <div class="award-badge">🎖️ UN SDG 9 Contributor</div>
         </div>
       </section>
 
       <section id="timeline" class="card">
-        <h2>Interactive Timeline <span class="badge-small">Our journey</span></h2>
-        <div class="timeline" style="margin-top:12px">
-          <div class="step"><strong>2023</strong><div style="color:var(--muted);font-size:13px">Concept born</div></div>
-          <div class="step"><strong>2024</strong><div style="color:var(--muted);font-size:13px">Prototype launched</div></div>
-          <div class="step"><strong>2025</strong><div style="color:var(--muted);font-size:13px">First deployment in floods</div></div>
-          <div class="step"><strong>2026</strong><div style="color:var(--muted);font-size:13px">Partnered with national agencies</div></div>
+        <h2>Timeline</h2>
+        <div class="timeline">
+          <div class="step"><strong>2023</strong><div class="small">Concept born</div></div>
+          <div class="step"><strong>2024</strong><div class="small">Prototype launched</div></div>
+          <div class="step"><strong>2025</strong><div class="small">First deployment in floods</div></div>
+          <div class="step"><strong>2026</strong><div class="small">Partnered with national agencies</div></div>
         </div>
       </section>
 
-
-
-
-
-
-
-
-
-
-<section id="contact" class="card">
+      <section id="contact" class="card">
         <h2>Contact & Demo</h2>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
-          <div class="contact-card">
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div>
             <strong>Skylark — AI Emergency Response</strong>
-            <div class="tag">Station: Bangalore, India</div>
+            <div class="small">Station: Bangalore, India</div>
             <div>Phone: <a href="tel:+919000000000" style="color:var(--accent)">+91 90000 00000</a></div>
             <div>Email: <a href="mailto:hello@skylark.ai" style="color:var(--accent)">hello@skylark.ai</a></div>
-            <div style="margin-top:8px"><button class="btn btn-primary" onclick="openDemoForm()">Request a Live Demo</button></div>
           </div>
-
           <div style="flex:1;min-width:260px">
-            <form id="contactForm" onsubmit="submitForm(event)">
-              <div style="display:flex;gap:8px;margin-bottom:8px"><input required placeholder="Name" id="name" style="flex:1;padding:10px;border-radius:10px;border:0;background:#07121a;color:#e6eef6"/><input required placeholder="Phone" id="phone" style="width:150px;padding:10px;border-radius:10px;border:0;background:#07121a;color:#e6eef6"/></div>
-              <input required placeholder="Organization" id="org" style="width:100%;padding:10px;border-radius:10px;border:0;background:#07121a;color:#e6eef6;margin-bottom:8px"/>
-              <textarea required placeholder="Tell us about your use case" id="message" style="width:100%;padding:10px;border-radius:10px;border:0;background:#07121a;color:#e6eef6;margin-bottom:8px;height:90px"></textarea>
-              <div style="display:flex;gap:8px"><button class="btn btn-primary" type="submit">Send Request</button><button class="btn btn-ghost" type="button" onclick="scrollToSection('features')">Learn More</button></div>
-              <div id="formMsg" style="margin-top:8px;color:var(--muted);font-size:13px"></div>
+            <form id="contactForm">
+              <input placeholder="Name" id="name" style="width:100%;padding:8px;margin-bottom:6px;border-radius:8px;background:#07121a;border:0;color:#e6eef6" required>
+              <input placeholder="Phone" id="phone" style="width:100%;padding:8px;margin-bottom:6px;border-radius:8px;background:#07121a;border:0;color:#e6eef6" required>
+              <input placeholder="Organization" id="org" style="width:100%;padding:8px;margin-bottom:6px;border-radius:8px;background:#07121a;border:0;color:#e6eef6" required>
+              <textarea placeholder="Tell us about your use case" id="message" style="width:100%;padding:8px;border-radius:8px;background:#07121a;border:0;color:#e6eef6;height:90px" required></textarea>
+              <div style="display:flex;gap:8px;margin-top:8px"><button type="submit" class="btn btn-primary">Send Request</button><button type="button" class="btn btn-ghost" onclick="document.getElementById('name').focus()">Focus</button></div>
             </form>
           </div>
         </div>
@@ -469,58 +231,91 @@
 
     </main>
 
-    <div>© <span id="year"></span> Skylark — AI Emergency Response • Bangalore, India</div>
+    <footer>
+      <div>© <span id="year"></span> Skylark — AI Emergency Response • Bangalore, India</div>
       <div style="display:flex;gap:12px;align-items:center"><a class="tag" href="#">Privacy</a><a class="tag" href="#">Docs</a></div>
     </footer>
+
   </div>
 
-  <button class="back-to-top" id="backTop" aria-label="Back to top" title="Back to top"><span class="arrow">↑</span></button>
+  <button id="backTop" style="position:fixed;right:20px;bottom:20px;width:48px;height:48px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#6bf5ff);border:0;display:none">↑</button>
 
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+  // Single consolidated script. No stray HTML inside JS.
+  (function(){
+    // Helpers
+    function qs(sel){return document.querySelector(sel)}
+    function qsa(sel){return Array.from(document.querySelectorAll(sel))}
 
-    function scrollToSection(id){
-      const el = document.getElementById(id);
-      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    // Year
+    const yearEl = qs('#year'); if(yearEl) yearEl.textContent = new Date().getFullYear();
+
+    // Smooth scroll for nav links
+    qsa('.nav-link').forEach(a=>{
+      a.addEventListener('click', function(e){ e.preventDefault(); const id = this.getAttribute('href'); const el = qs(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); });
+    });
+
+    // Charts
+    function initCharts(){
+      try{
+        const rEl = qs('#chartResponse');
+        if(rEl){ new Chart(rEl.getContext('2d'), { type:'bar', data:{ labels:['Traditional','Skylark'], datasets:[{ label:'Response time (min)', data:[25,5], backgroundColor:['rgba(255,159,64,0.25)','rgba(0,209,255,0.18)'] }] }, options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}} }); }
+        const lEl = qs('#chartLives');
+        if(lEl){ new Chart(lEl.getContext('2d'), { type:'bar', data:{ labels:['Without','With'], datasets:[{ label:'Lives saved/1000', data:[40,68], backgroundColor:['rgba(255,99,132,0.25)','rgba(54,162,235,0.25)'] }] }, options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}} }); }
+      }catch(e){ console.warn('Charts init failed', e); }
     }
 
-    function submitForm(e){
-      e.preventDefault();
-      const name=document.getElementById('name').value;
-      const phone=document.getElementById('phone').value;
-      const org=document.getElementById('org').value;
-      const message=document.getElementById('message').value;
-      const fm=document.getElementById('formMsg');
-      // placeholder action: open mailto with prefilled content
-      const subject = encodeURIComponent('Skylark Demo Request — '+org);
-      const body = encodeURIComponent(`Name: ${name}\nPhone: ${phone}\nOrganization: ${org}\n\nMessage:\n${message}`);
-      window.location.href = `mailto:hello@skylark.ai?subject=${subject}&body=${body}`;
-      fm.textContent = 'Opening your mail client to send the request — or contact us at hello@skylark.ai';
+    // Counters animation
+    function initCounters(){
+      const counters = qsa('.stat-number');
+      const obs = new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            const el = entry.target; if(el.dataset.done) return; el.dataset.done = '1';
+            const target = parseFloat(el.getAttribute('data-target'))||0; const isFloat = target%1!==0; let current=0; const steps=80; const step=target/steps;
+            const iv = setInterval(()=>{ current += step; if((!isFloat && current>=target) || (isFloat && current.toFixed(1)>=target)){ el.textContent = isFloat?target.toFixed(1):Math.round(target).toLocaleString(); clearInterval(iv);} else { el.textContent = isFloat?current.toFixed(1):Math.round(current).toLocaleString(); } }, 18);
+          }
+        })
+      },{threshold:0.4});
+      counters.forEach(c=>obs.observe(c));
     }
 
-    function openDemoForm(){
-      scrollToSection('contact');
-      document.getElementById('name').focus();
+    // Leaflet map
+    function initMap(){
+      try{
+        if(typeof L === 'undefined') return; const mapEl = qs('#coverageMap'); if(!mapEl) return;
+        const map = L.map(mapEl).setView([20.5937,78.9629],4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(map);
+        const locations = [
+          {name:'Bangalore',coords:[12.9716,77.5946],info:'312 rescues'},
+          {name:'Mumbai',coords:[19.0760,72.8777],info:'524 rescues'},
+          {name:'Chennai',coords:[13.0827,80.2707],info:'218 rescues'},
+          {name:'Kathmandu',coords:[27.7172,85.3240],info:'46 rescues'}
+        ];
+        locations.forEach(loc=>{ const m=L.circleMarker(loc.coords,{radius:8,fillColor:'#00f1d6',color:'#6bf5ff',weight:1,fillOpacity:0.9}).addTo(map); m.bindPopup(`<strong>${loc.name}</strong><br/>${loc.info}`); });
+        setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} },300);
+      }catch(e){ console.warn('Map init failed', e); }
     }
-  
-// Charts: response time and lives saved
-<script>
-// Navigation: smooth scroll + scrollspy active state
-(function(){
-  const links = Array.from(document.querySelectorAll('.top-nav .nav-link'));
-  const sections = links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
-  function setActive(){
-    const scrollPos = window.scrollY + window.innerHeight/3;
-    let current = sections[0];
-    for(const s of sections){ if(s.offsetTop <= scrollPos) current = s; }
-    links.forEach(a=> a.classList.remove('active'));
-    const activeLink = links.find(a=>document.querySelector(a.getAttribute('href'))===current);
-    if(activeLink) activeLink.classList.add('active');
-  }
-  links.forEach(a=>a.addEventListener('click', function(e){ e.preventDefault(); const target=document.querySelector(this.getAttribute('href')); if(target) target.scrollIntoView({behavior:'smooth',block:'start'}); }));
-  window.addEventListener('scroll', setActive);
-  setActive();
-})();
-</script>
+
+    // Testimonials autoplay
+    function initTestimonials(){
+      const slides = qsa('#testimonialWrap .testimonial-slide'); if(!slides.length) return; slides.forEach((s,i)=>s.style.transform=`translateX(${i*100}%)`); let idx=0; setInterval(()=>{ idx=(idx+1)%slides.length; slides.forEach((s,i)=>s.style.transform=`translateX(${(i-idx)*100}%)`); },4000);
+    }
+
+    // Back to top
+    const back = qs('#backTop'); window.addEventListener('scroll', ()=>{ if(window.scrollY>300) back.style.display='flex'; else back.style.display='none'; }); back.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+    // Scrollspy - highlight nav
+    function initScrollSpy(){ const links = qsa('nav.top-nav .nav-link'); const secs = links.map(a=>qs(a.getAttribute('href'))).filter(Boolean);
+      function setActive(){ const scrollPos = window.scrollY + window.innerHeight/3; let current = secs[0]; for(const s of secs) if(s.offsetTop <= scrollPos) current = s; links.forEach(a=>a.classList.remove('active')); const act = links.find(a=>qs(a.getAttribute('href'))===current); if(act) act.classList.add('active'); }
+      window.addEventListener('scroll', setActive); setActive(); }
+
+    // Contact form (mailto placeholder)
+    const form = qs('#contactForm'); if(form) form.addEventListener('submit', function(e){ e.preventDefault(); const name=qs('#name').value||''; const phone=qs('#phone').value||''; const org=qs('#org').value||''; const msg=qs('#message').value||''; const subject = encodeURIComponent('Skylark Demo Request — '+org); const body = encodeURIComponent(`Name: ${name}\nPhone: ${phone}\nOrg: ${org}\n\n${msg}`); window.location.href = `mailto:hello@skylark.ai?subject=${subject}&body=${body}`; });
+
+    // DOM ready
+    document.addEventListener('DOMContentLoaded', function(){ initCharts(); initCounters(); initMap(); initTestimonials(); initScrollSpy(); });
+  })();
+  </script>
 </body>
 </html>
